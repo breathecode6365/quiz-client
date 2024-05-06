@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import Game from "./Game";
 
-const socket = io("https://quiz-server-g48l.onrender.com");
+// const socket = io("https://quiz-server-g48l.onrender.com");
+const socket = io("http://localhost:8080");
 
 const Home = () => {
   const [show, setShow] = useState(false);
@@ -25,7 +26,7 @@ const Home = () => {
         alert(mssg);
       })
       socket.on("startGame", () => {
-        setTimeout(() => {}, 5000);
+        console.log("Game Started");
       });
     }
   }, [socket]);

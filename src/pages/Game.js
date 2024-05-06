@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 const Game = ({ socket, username, myRoom, setMyRoom }) => {
-  const [startCnt, setStartCnt] = useState(10);
+  const [startCnt, setStartCnt] = useState(15);
   const [cntShow, setCntShow] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
   const [curQuestion, setCurQuestion] = useState(null);
@@ -24,9 +24,9 @@ const Game = ({ socket, username, myRoom, setMyRoom }) => {
       socket.emit("gameOver", answerMap);
     });
     socket.on("startGame", (roomData) => {
+      console.log("Room Data ---> ", roomData);
       setMyRoom(roomData);
       setCntShow(true);
-      socket.emit("ready", myRoom);
       let count = 10;
       const countdownInterval = setInterval(() => {
         count--;
@@ -35,6 +35,7 @@ const Game = ({ socket, username, myRoom, setMyRoom }) => {
           clearInterval(countdownInterval);
           setShowQuiz(true);
           setCntShow(false);
+          socket.emit("ready", myRoom);
         }
       }, 1000);
 
@@ -52,10 +53,10 @@ const Game = ({ socket, username, myRoom, setMyRoom }) => {
       setShowResult(true);
       console.log("Result Room ", roomData);
     });
-    socket.on("leftRoom",(mssg)=>{
-      alert(mssg)
-      window.location.href="/";
-    })
+    socket.on("leftRoom", (mssg) => {
+      alert(mssg);
+      window.location.href = "/";
+    });
   }, [socket]);
 
   useEffect(() => {
@@ -85,7 +86,11 @@ const Game = ({ socket, username, myRoom, setMyRoom }) => {
               <div className="flex flex-row justify-between">
                 <p className="text-sm font-semibold border border-blue-900 bg-blue-400 p-2 rounded-lg">{`${username} (you)`}</p>
                 <p className="text-sm font-semibold border border-red-900 bg-red-400 p-2 rounded-lg">
-                  {(myRoom.players[0].playerName === username)? myRoom.players[1]?(myRoom.players[1].playerName):"Waiting for player" : myRoom.players[0].playerName}
+                  {myRoom.players[0].playerName === username
+                    ? myRoom.players[1]
+                      ? myRoom.players[1].playerName
+                      : "Waiting for player"
+                    : myRoom.players[0].playerName}
                 </p>
               </div>
             </div>
@@ -101,15 +106,20 @@ const Game = ({ socket, username, myRoom, setMyRoom }) => {
       {showQuiz && curQuestion && (
         <div className="p-3">
           <div className="flex flex-col items-center justify-center gap-2 p-4 bg-white w-[320px] rounded-xl border-2 border-blue-700">
-            <div className="rounded-[50%] border-2 border-black flex items-center justify-center w-[30px] h-auto">{questionTime}</div>
+            <div className="rounded-[50%] border-2 border-black flex items-center justify-center w-[30px] h-auto">
+              {questionTime}
+            </div>
             <h2 className="font-bold text-wrap">{curQuestion?.question}</h2>
-            <ul className="flex flex-col gap-3
+            <ul
+              className="flex flex-col gap-3
             ">
               {curQuestion.options?.map((option, index) => (
-                <li key={index} className="bg-blue-300 
+                <li
+                  key={index}
+                  className="bg-blue-300 
                 hover:bg-blue-600 focus:bg-green-500 flex items-center p-2 rounded-xl ">
                   <input
-                  className="mr-3 my-3"
+                    className="mr-3 my-3"
                     type="radio"
                     id={`option${index}`}
                     name="answer"
